@@ -1,15 +1,10 @@
 <template>
   <el-container style="overflow:hidden">
+    <el-row style="margin-top: 0px; text-align:left;-webkit-app-region: drag;-webkit-user-select: none;"><el-button size="mini" type="text" style="padding-right:10px;-webkit-app-region: no-drag;" @click="hideMainWindow">―</el-button></el-row>
     <el-main style="padding: 0px">
       <el-row style="-webkit-app-region: drag;-webkit-user-select: none;">
         <el-col :span="9" style="padding:2px">
-          <el-button
-            size="mini"
-            circle
-            icon="el-icon-error"
-            @click="hideMainWindow"
-            style="-webkit-app-region: no-drag; "
-          ></el-button>
+         
         </el-col>
         <el-col :span="6">
           <div class="grid-content" style="-webkit-app-region: no-drag;text-align: center;">
@@ -20,12 +15,10 @@
           </div>
         </el-col>
         <el-col :span="9">
-          <div class="grid-content" style="text-align:right;padding:5px">
+          <div class="grid-content" style="text-align:right;">
             <el-row>
-              <el-col :span="6">
+              <el-col :span="12" style="padding:0px">
                 <el-tag type="success">{{stateStr}}</el-tag>
-              </el-col>
-              <el-col :span="6">
                 <el-tag type="success" effect="dark">{{timeStr}}</el-tag>
               </el-col>
               <el-col :span="12">
@@ -91,11 +84,11 @@
         </el-row>
       </ul>
     </el-main>
-    <el-footer>
+    <el-footer style="height: 35px;margin:0px;padding:0px;line-height: 20px;">
       <el-row>
-        <el-col :span="12">
-          <div class="grid-content" style="text-align:left">
-            <router-link to="/">官网</router-link>
+        <el-col :span="12" >
+          <div class="grid-content" style="text-align:left;font-size:12px" >
+            <router-link to="/" >官网</router-link>
           </div>
         </el-col>
         <el-col :span="12">
@@ -196,7 +189,7 @@ main > div {
   position: releative;
 }
 .el-footer {
-  background-color: #e4e5e7;
+  background-color: #fafdfb;
   color: rgb(236, 232, 232);
   text-align: center;
   line-height: 60px;

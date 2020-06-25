@@ -52,7 +52,20 @@ function menuTray () {
     } },
     { label: '关于' },
     { type: 'separator' },
-    { label: '开机启动', type: 'checkbox', checked: true },
+    { label: '开机启动', type: 'checkbox', checked: app.getLoginItemSettings().openAtLogin,click:function () {
+      if(!app.isPackaged){
+        app.setLoginItemSettings({
+          openAtLogin: !app.getLoginItemSettings().openAtLogin,
+          path: process.execPath
+        })
+      }else{
+        app.setLoginItemSettings({
+          openAtLogin: !app.getLoginItemSettings().openAtLogin
+        })
+      }
+      console.log(app.getLoginItemSettings().openAtLogin)
+      console.log(!app.isPackaged);
+    } },
     { type: 'separator' },
     { label: '退出',
       click: function () {
