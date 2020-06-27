@@ -150,7 +150,7 @@
           </el-row>
           <el-row>
             <el-col :span="24">
-              <el-checkbox label="播放工作音乐" @change="playWorkingMusic"></el-checkbox>
+              <el-checkbox label="播放工作音乐" v-model="isPlayWorkingAudio" @change="playWorkingMusic"></el-checkbox>
             </el-col>
           </el-row>
         </el-tab-pane>
@@ -199,7 +199,9 @@ export default {
       sliderWorkingTime: 25, // this.$store.state.setting.workingTime,
       sliderRestTime: this.$store.state.setting.restTime,
       sliderLongRestTime: this.$store.state.setting.longRestTime,
-      sliderLongRestTimeInterval: this.$store.state.setting.longRestTimeInterval
+      sliderLongRestTimeInterval: this.$store.state.setting.longRestTimeInterval,
+      isPlayWorkingAudio: global.getIsPlayWorkingAudio()
+
     };
   },
   methods: {
@@ -234,7 +236,8 @@ export default {
       }
     }
   },
-  computed: {},
+  computed: {
+  },
   created() {
     this.workingOptions.length = 0;
     let workingAudios = global.workingAudios;

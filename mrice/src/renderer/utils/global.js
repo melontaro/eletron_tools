@@ -52,8 +52,22 @@ export function getUserConfig(){
 }
 
 // 播放音乐
+let isPlayWorkingAudio=true
+
+export function getIsPlayWorkingAudio(){
+    return isPlayWorkingAudio
+}
+
+export function setIsPlayWorkingAudio(val){
+    isPlayWorkingAudio=val
+    eStore.set('isPlayWorkingAudio',val)
+}
+
+
+
 let userAduio=null
 export function playAudio(path,isloop=true){
+    if(!isPlayWorkingAudio){return}
     userAduio = new Audio()
     userAduio.src = path
     userAduio.loop= isloop
@@ -63,14 +77,19 @@ export function playAudio(path,isloop=true){
 export function stopAudio(){
     if(userAduio!=null){
         userAduio.pause() 
+        
     }
+    setIsPlayWorkingAudio(false)
     
 }
 
 export function playWorkingAudio(){
     if(userAduio!=null){
         userAduio.play() 
+        
+        
     }
+    setIsPlayWorkingAudio(true)
     
 }
 

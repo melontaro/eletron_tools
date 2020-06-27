@@ -26,6 +26,7 @@ export default {
     this.readWorkingAudioFile();
     this.readWarningAudioFile();
     this.setConfig();
+
     this.loadingServerConfig();
   },
   methods: {
@@ -105,6 +106,13 @@ export default {
       }
       global.getUserConfig();
       log.warn("APP.vue setConfig 1");
+      let isPlayWorkingAudio= this.$eStore.get('isPlayWorkingAudio')
+      if(isPlayWorkingAudio==null||isPlayWorkingAudio==true){
+          global.setIsPlayWorkingAudio(true)
+      }else{
+          global.setIsPlayWorkingAudio(false)
+      }
+      
     },
     loadingServerConfig() {
       const query = this.$bmob.Query("ConfigInfo");
