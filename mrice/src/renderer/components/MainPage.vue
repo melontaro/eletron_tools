@@ -88,7 +88,7 @@
       <el-row>
         <el-col :span="12" >
           <div class="grid-content" style="text-align:left;font-size:12px" >
-            <router-link to="/" >官网</router-link>
+            <el-button type="text" @click="goWebSite">官网</el-button>
           </div>
         </el-col>
         <el-col :span="12">
@@ -103,7 +103,120 @@
   </el-container>
 </template
 >>
+<script>
+import { ipcRenderer } from "electron";
+const global = require("../utils/global");
+export default {
+  data() {
+    return {
+      taskInput: "",
+      tabPosition: "task",
+      timeStr: "25:00",
+      stateStr: "未开始",
+      count: this.$store.state.main.tasks.length
+  
+    };
+  },
+  methods: {
+    startWorking() {
+      let userState = global.getUserState();
+      let userTime = 0;
+      if (userState == 0) {
+        userTime = global.getUserConfig().workingTime;
+        this.$store.dispatch("startWorking", userTime);
+        let audioPath =
+          global.workingAudios[global.getUserConfig().workingAudioIndex].path;
+        global.playAudio(audioPath);
+        global.setUserState(1);
+        this.stateStr = "工作中";
+      } else if (userState == 1 || userState == 2) {
+        this.$store.dispatch("stopWork");
+        global.stopAudio();
+        global.setUserState(0);
+        this.stateStr = "未开始";
+      }
+    },
+    hideMainWindow() {
+      ipcRenderer.send("hideMainWindow");
+    },
+    load() {
+      this.count; /// += 2
+    },
+    addTask() {
+      this.$store.dispatch("addTask", this.taskInput);
+      this.taskInput = "";
+    },
+    removeTask(index) {
+      this.$store.dispatch("removeTask", index);
+    },
+    goWebSite () {
+      console.log('====>'+global.getServerConfigInfo().webSite)
+      const shell = require('electron').shell
+      shell.openExternal(global.getServerConfigInfo().webSite)
+    }
+  },
+  computed: {
+    getLeftWorkingTime() {
+      return this.$store.state.main.leftWorkingTime;
+    },
+    getTaskCount() {
+      return this.$store.state.main.tasks;
+    }
+  },
+  watch: {
+    getLeftWorkingTime: function(val) {
+      if (global.getUserState() == 1) {
+        console.log("watch--->" + val);
+        this.stateStr = "工作中";
 
+        let workTimeTemp = global.getUserConfig().workingTime * 60 - val;
+        if (workTimeTemp >= 0) {
+          this.timeStr =
+            Math.floor(workTimeTemp / 60) + ":" + (workTimeTemp % 60);
+        }
+        if (workTimeTemp == 0) {
+          // 休息倒计时
+          this.stateStr = "休息中";
+          global.setUserState(2);
+          global.stopAudio();
+          let audioPath =
+            global.warningAudios[global.getUserConfig().restAudioIndex].path;
+          global.playAudio(audioPath, false);
+          this.$store.dispatch("startResting", global.getUserConfig().restTime);
+        }
+      }
+      if (global.getUserState() == 2) {
+        console.log("watch--->" + val);
+        this.stateStr = "休息中";
+        let restTimeTemp = global.getUserConfig().restTime * 60 - val;
+        if (restTimeTemp >= 0) {
+          this.timeStr =
+            Math.floor(restTimeTemp / 60) + ":" + (restTimeTemp % 60);
+        }
+        if (restTimeTemp == 0) {
+          // 工作倒计时
+          this.stateStr = "工作中";
+          global.setUserState(1);
+          global.stopAudio();
+          let audioPath =
+            global.workingAudios[global.getUserConfig().workingAudioIndex].path;
+          global.playAudio(audioPath, true);
+          this.$store.dispatch(
+            "startWorking",
+             global.getUserConfig().workingTime
+          );
+        }
+      }
+    },
+    getTaskCount: function(val) {
+      this.count = val.length;
+      console.log("this.count===========" + val[0].infor);val
+    }
+
+   
+  }
+};
+</script>
 <style>
 body {
   font-family: "Source Sans Pro", sans-serif;
@@ -220,110 +333,3 @@ div.el-color-picker__trigger {
     cursor: pointer;
 }
 </style>
-
-<script>
-import { ipcRenderer } from "electron";
-const global = require("../utils/global");
-export default {
-  data() {
-    return {
-      taskInput: "",
-      tabPosition: "task",
-      timeStr: "25:00",
-      stateStr: "未开始",
-      count: this.$store.state.main.tasks.length
-    };
-  },
-  methods: {
-    startWorking() {
-      let userState = global.getUserState();
-      let userTime = 0;
-      if (userState == 0) {
-        userTime = global.getUserConfig().workingTime;
-        this.$store.dispatch("startWorking", userTime);
-        let audioPath =
-          global.workingAudios[global.getUserConfig().workingAudioIndex].path;
-        global.playAudio(audioPath);
-        global.setUserState(1);
-        this.stateStr = "工作中";
-      } else if (userState == 1 || userState == 2) {
-        this.$store.dispatch("stopWork");
-        global.stopAudio();
-        global.setUserState(0);
-        this.stateStr = "未开始";
-      }
-    },
-    hideMainWindow() {
-      ipcRenderer.send("hideMainWindow");
-    },
-    load() {
-      this.count; /// += 2
-    },
-    addTask() {
-      this.$store.dispatch("addTask", this.taskInput);
-      this.taskInput = "";
-    },
-    removeTask(index) {
-      this.$store.dispatch("removeTask", index);
-    }
-  },
-  computed: {
-    getLeftWorkingTime() {
-      return this.$store.state.main.leftWorkingTime;
-    },
-    getTaskCount() {
-      return this.$store.state.main.tasks;
-    }
-  },
-  watch: {
-    getLeftWorkingTime: function(val) {
-      if (global.getUserState() == 1) {
-        console.log("watch--->" + val);
-        this.stateStr = "工作中";
-
-        let workTimeTemp = global.getUserConfig().workingTime * 60 - val;
-        if (workTimeTemp >= 0) {
-          this.timeStr =
-            Math.floor(workTimeTemp / 60) + ":" + (workTimeTemp % 60);
-        }
-        if (workTimeTemp == 0) {
-          // 休息倒计时
-          this.stateStr = "休息中";
-          global.setUserState(2);
-          global.stopAudio();
-          let audioPath =
-            global.warningAudios[global.getUserConfig().restAudioIndex].path;
-          global.playAudio(audioPath, false);
-          this.$store.dispatch("startResting", global.getUserConfig().restTime);
-        }
-      }
-      if (global.getUserState() == 2) {
-        console.log("watch--->" + val);
-        this.stateStr = "休息中";
-        let restTimeTemp = global.getUserConfig().restTime * 60 - val;
-        if (restTimeTemp >= 0) {
-          this.timeStr =
-            Math.floor(restTimeTemp / 60) + ":" + (restTimeTemp % 60);
-        }
-        if (restTimeTemp == 0) {
-          // 工作倒计时
-          this.stateStr = "工作中";
-          global.setUserState(1);
-          global.stopAudio();
-          let audioPath =
-            global.workingAudios[global.getUserConfig().workingAudioIndex].path;
-          global.playAudio(audioPath, true);
-          this.$store.dispatch(
-            "startWorking",
-             global.getUserConfig().workingTime
-          );
-        }
-      }
-    },
-    getTaskCount: function(val) {
-      this.count = val.length;
-      console.log("this.count===========" + val[0].infor);
-    }
-  }
-};
-</script>

@@ -40,6 +40,10 @@ const actions = {
       if (m >= data * 60) {
         clearInterval(global.getUserInterval());
 
+        const ipc = require('electron').ipcRenderer
+        ipc.send('open-info-dialog')
+       
+
       }
 
     }, 1000);

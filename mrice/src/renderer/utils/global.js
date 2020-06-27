@@ -61,5 +61,32 @@ export function playAudio(path,isloop=true){
 }
 
 export function stopAudio(){
-    userAduio.pause() 
+    if(userAduio!=null){
+        userAduio.pause() 
+    }
+    
+}
+
+export function playWorkingAudio(){
+    if(userAduio!=null){
+        userAduio.play() 
+    }
+    
+}
+
+// 获取本地版本
+let localVersion=1.0
+
+export function getLocalVersion(){
+    return localVersion
+}
+// 存储服务器获得的数据
+let serverConfigInfo=null
+
+export function getServerConfigInfo(){
+    return serverConfigInfo
+}
+
+export function setServerConfigInfo(val) {
+    serverConfigInfo=val
 }

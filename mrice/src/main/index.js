@@ -1,6 +1,6 @@
 'use strict'
 
-import { Menu, Tray, app, BrowserWindow, ipcMain } from 'electron'
+import { Menu, Tray, app, BrowserWindow, ipcMain, dialog} from 'electron'
 import '../renderer/store'
 /**
  * Set `__static` path to static files in production
@@ -94,6 +94,18 @@ app.on('activate', () => {
 ipcMain.on('hideMainWindow',(e,arg)=>
 {
   mainWindow.hide()
+})
+
+ipcMain.on('open-info-dialog', function (event) {
+  const options = {
+    type: 'info',
+    title: '信息',
+    message: "工作一会了,先休息一下吧!",
+    buttons: ['是', '否']
+  }
+  dialog.showMessageBox(options, function (index) {
+    //  event.sender.send('information-dialog-selection', index)
+  })
 })
 /**
  * Auto Updater
