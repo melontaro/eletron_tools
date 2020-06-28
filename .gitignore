@@ -2,3 +2,5 @@
 electron-vue-music/node_modules/
 
 electron-vue-music/build/
+
+nsis_mrice/Setup.exe

@@ -11,6 +11,7 @@ import Bmob from 'hydrogen-js-sdk'
 
 Vue.config.productionTip = false
 
+
 // 初始化
 Bmob.initialize('959721d37fed55ac', '123097')
 Vue.use(ElementUI)

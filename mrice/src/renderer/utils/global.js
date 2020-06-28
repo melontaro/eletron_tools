@@ -74,23 +74,25 @@ export function playAudio(path,isloop=true){
     userAduio.play()
 }
 
-export function stopAudio(){
+export function stopWorkingAudio(){
     if(userAduio!=null){
         userAduio.pause() 
         
     }
-    setIsPlayWorkingAudio(false)
-    
+    setIsPlayWorkingAudio(false) 
+}
+export function stopRestAudio(){
+    if(userAduio!=null){
+        userAduio.pause() 
+        
+    }
 }
 
 export function playWorkingAudio(){
     if(userAduio!=null){
-        userAduio.play() 
-        
-        
+        userAduio.play()    
     }
     setIsPlayWorkingAudio(true)
-    
 }
 
 // 获取本地版本

@@ -131,7 +131,7 @@ export default {
         this.stateStr = "工作中";
       } else if (userState == 1 || userState == 2) {
         this.$store.dispatch("stopWork");
-        global.stopAudio();
+        global.stopWorkingAudio();
         global.setUserState(0);
         this.stateStr = "未开始";
       }
@@ -178,7 +178,7 @@ export default {
           // 休息倒计时
           this.stateStr = "休息中";
           global.setUserState(2);
-          global.stopAudio();
+          global.stopWorkingAudio();
           let audioPath =
             global.warningAudios[global.getUserConfig().restAudioIndex].path;
           global.playAudio(audioPath, false);
@@ -197,7 +197,7 @@ export default {
           // 工作倒计时
           this.stateStr = "工作中";
           global.setUserState(1);
-          global.stopAudio();
+          global.stopRestAudio();
           let audioPath =
             global.workingAudios[global.getUserConfig().workingAudioIndex].path;
           global.playAudio(audioPath, true);

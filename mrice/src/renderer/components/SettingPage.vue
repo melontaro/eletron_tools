@@ -230,7 +230,7 @@ export default {
     },
     playWorkingMusic(val) {
       if (!val) {
-        global.stopAudio();
+        global.stopWorkingAudio();
       } else {
         global.playWorkingAudio();
       }
