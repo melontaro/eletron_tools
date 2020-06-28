@@ -1,11 +1,18 @@
 <template>
   <el-container style="overflow:hidden">
-    <el-row style="margin-top: 0px; text-align:left;-webkit-app-region: drag;-webkit-user-select: none;"><el-button size="mini" type="text" style="padding-right:10px;-webkit-app-region: no-drag;" @click="hideMainWindow">―</el-button></el-row>
+    <el-row
+      style="margin-top: 0px; text-align:left;-webkit-app-region: drag;-webkit-user-select: none;"
+    >
+      <el-button
+        size="mini"
+        type="text"
+        style="padding-right:10px;-webkit-app-region: no-drag;"
+        @click="hideMainWindow"
+      >―</el-button>
+    </el-row>
     <el-main style="padding: 0px">
       <el-row style="-webkit-app-region: drag;-webkit-user-select: none;">
-        <el-col :span="9" style="padding:2px">
-         
-        </el-col>
+        <el-col :span="9" style="padding:2px"></el-col>
         <el-col :span="6">
           <div class="grid-content" style="-webkit-app-region: no-drag;text-align: center;">
             <el-radio-group v-model="tabPosition">
@@ -73,22 +80,38 @@
               @click="removeTask(i-1)"
             ></el-button>
           </el-col>
-          <el-col
-            :span="2"
-           
-            >
+          <el-col :span="2">
             <el-color-picker></el-color-picker>
           </el-col>
 
           <el-divider></el-divider>
         </el-row>
       </ul>
+
+      <ul
+        class="infinite-list"
+        v-infinite-scroll="load"
+        style="overflow:auto;height:400px"
+        v-if="tabPosition=='todo'"
+      >
+        <el-timeline>
+          <el-timeline-item
+            v-for="(activity, index) in activities"
+            :key="index"
+            :timestamp="activity.createdAt"
+          >已工作: {{activity.workingTime}}分钟</el-timeline-item>
+        </el-timeline>
+      </ul>
     </el-main>
     <el-footer style="height: 35px;margin:0px;padding:0px;line-height: 20px;">
       <el-row>
-        <el-col :span="12" >
-          <div class="grid-content" style="text-align:left;font-size:12px" >
-            <el-button type="text" @click="goWebSite">官网</el-button>
+        <el-col :span="12">
+          <div class="grid-content" style="text-align:left">
+            <el-button
+              style="padding-left:10px;font-size:12px;padding-bottom:20px;margin-bottom:20px;"
+              type="text"
+              @click="goWebSite"
+            >官网</el-button>
           </div>
         </el-col>
         <el-col :span="12">
@@ -113,8 +136,8 @@ export default {
       tabPosition: "task",
       timeStr: "25:00",
       stateStr: "未开始",
-      count: this.$store.state.main.tasks.length
-  
+      count: this.$store.state.main.tasks.length,
+      activities: []
     };
   },
   methods: {
@@ -149,10 +172,9 @@ export default {
     removeTask(index) {
       this.$store.dispatch("removeTask", index);
     },
-    goWebSite () {
-      console.log('====>'+global.getServerConfigInfo().webSite)
-      const shell = require('electron').shell
-      shell.openExternal(global.getServerConfigInfo().webSite)
+    goWebSite() {
+      const shell = require("electron").shell;
+      shell.openExternal(global.getServerConfigInfo().webSite);
     }
   },
   computed: {
@@ -161,12 +183,14 @@ export default {
     },
     getTaskCount() {
       return this.$store.state.main.tasks;
+    },
+    getActivities() {
+      return this.$store.state.main.timeLines;
     }
   },
   watch: {
     getLeftWorkingTime: function(val) {
       if (global.getUserState() == 1) {
-        console.log("watch--->" + val);
         this.stateStr = "工作中";
 
         let workTimeTemp = global.getUserConfig().workingTime * 60 - val;
@@ -175,6 +199,17 @@ export default {
             Math.floor(workTimeTemp / 60) + ":" + (workTimeTemp % 60);
         }
         if (workTimeTemp == 0) {
+          let currentUser = this.$bmob.User.current();
+          if (currentUser != null) {
+            const query = this.$bmob.Query("TimeLine");
+            query.set("workingTime", global.getUserConfig().workingTime);
+            query.set("userId", currentUser.objectId);
+            query.save().then(res => {
+                 this.$store.dispatch("addTimeLine", {workingTime:global.getUserConfig().workingTime,createdAt:res.createdAt});
+              }).catch(err => {
+                console.log(err);
+              });
+          }
           // 休息倒计时
           this.stateStr = "休息中";
           global.setUserState(2);
@@ -186,7 +221,6 @@ export default {
         }
       }
       if (global.getUserState() == 2) {
-        console.log("watch--->" + val);
         this.stateStr = "休息中";
         let restTimeTemp = global.getUserConfig().restTime * 60 - val;
         if (restTimeTemp >= 0) {
@@ -203,17 +237,35 @@ export default {
           global.playAudio(audioPath, true);
           this.$store.dispatch(
             "startWorking",
-             global.getUserConfig().workingTime
+            global.getUserConfig().workingTime
           );
         }
       }
     },
     getTaskCount: function(val) {
       this.count = val.length;
-      console.log("this.count===========" + val[0].infor);val
+    },
+    getActivities: function(val) {
+      this.activities = val == null ? [] : val;
     }
-
-   
+  },
+  created() {
+    const moment = require("moment");
+    let currentTime = moment(Date.now()).format("YYYY-MM-DD");
+    console.log(currentTime + " 00:00:00");
+    let currentUser = this.$bmob.User.current();
+    if (currentUser != null) {
+      const query = this.$bmob.Query("TimeLine");
+      query.equalTo("userId", "==", currentUser.objectId);
+      query.equalTo("createdAt", ">=", currentTime + " 00:00:00");
+      query.equalTo("createdAt", "<=", currentTime + " 23:59:59");
+      query.find().then(res => {
+        console.log("TimeLine table===>" + res);
+        for(var i=0;i<res.length;i++){
+          this.activities.push({workingTime:res[i].workingTime,createdAt:res[i].createdAt})
+        }
+      });
+    }
   }
 };
 </script>
@@ -320,16 +372,16 @@ main > div {
   padding: 0px;
 }
 div.el-color-picker__trigger {
-    display: inline-block;
-    -webkit-box-sizing: border-box;
-    box-sizing: border-box;
-    height: 20px;
-    width: 20px;
-    padding: 4px;
-    border: 1px solid #0362f1;
-    border-radius: 4px;
-    font-size: 0;
-    position: relative;
-    cursor: pointer;
+  display: inline-block;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  height: 20px;
+  width: 20px;
+  padding: 4px;
+  border: 1px solid #0362f1;
+  border-radius: 4px;
+  font-size: 0;
+  position: relative;
+  cursor: pointer;
 }
 </style>

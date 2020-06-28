@@ -13,14 +13,11 @@ export default {
   name: "mrice",
   warningAudios: [],
   created() {
-    log.warn("APP.vue created");
-    console.log("App created");
     console.log(this.$execPath);
     if (this.$eStore.get("workingAudioName") == null) {
       console.log("无法读取本地存储的数据,可能数据不存在");
       this.$eStore.set("workingAudioName", "-------->dfg");
     } else {
-      console.log("66666666666666666666666");
       console.log(this.$eStore.get("workingAudioName"));
     }
     this.readWorkingAudioFile();
@@ -28,10 +25,11 @@ export default {
     this.setConfig();
 
     this.loadingServerConfig();
+    this.loginServer()
   },
   methods: {
     createAudio() {
-      console.log("createAudio----->");
+      
     },
     // 读取工作音效目录
     readWorkingAudioFile() {
@@ -42,10 +40,9 @@ export default {
           console.log("readdir err:" + err);
           return;
         }
-        console.log(files);
+      
         for (var i = 0; i < files.length; i++) {
           let nameFile = files[i].split(".")[0];
-          console.log(nameFile);
           let isNewbie = global.checkIsNewbie();
           let isDefault = isNewbie && i == 0 ? true : false;
           global.workingAudios.push({
@@ -67,10 +64,8 @@ export default {
           console.log("readdir err:" + err);
           return;
         }
-        console.log(files);
         for (var i = 0; i < files.length; i++) {
           let nameFile = files[i].split(".")[0];
-          console.log(nameFile);
           let isNewbie = global.checkIsNewbie();
           let isDefault = isNewbie && i == 0 ? true : false;
           global.warningAudios.push({
@@ -84,11 +79,8 @@ export default {
     },
     //
     setConfig() {
-      log.warn("APP.vue setConfig");
-
       let isNewbie = global.checkIsNewbie();
       if (isNewbie) {
-        console.log("is new bie=====>>>>>>>>>");
         let wTime = localConfig.defaultConfig.workTime;
         let rTime = localConfig.defaultConfig.restTime;
         let iTimes = localConfig.defaultConfig.intervalTimes;
@@ -105,7 +97,6 @@ export default {
         });
       }
       global.getUserConfig();
-      log.warn("APP.vue setConfig 1");
       let isPlayWorkingAudio= this.$eStore.get('isPlayWorkingAudio')
       if(isPlayWorkingAudio==null||isPlayWorkingAudio==true){
           global.setIsPlayWorkingAudio(true)
@@ -117,13 +108,27 @@ export default {
     loadingServerConfig() {
       const query = this.$bmob.Query("ConfigInfo");
       query.get("ekAHIIIa").then((res) => {
-          console.log(res);
           global.setServerConfigInfo(res)
         })
         .catch((err) => {
           console.log(err);
         });
     },
+    loginServer() {
+      let userLoginInfo=this.$eStore.get("userLoginInfo");
+      if(userLoginInfo!=null){
+         let email = userLoginInfo.username;
+      let pwd = userLoginInfo.pwd;
+      this.$bmob.User.login(email, pwd)
+        .then((res) => {
+          console.log('====>'+res);
+          
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+      }
+    }
   },
 };
 </script>

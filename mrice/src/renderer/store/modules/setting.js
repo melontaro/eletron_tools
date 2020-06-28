@@ -4,6 +4,7 @@ const state = {
   restTime: 10, //global.getUserConfig().restTime,
   longRestTime: 25,// global.getUserConfig().longRestTime,
   longRestTimeInterval:2 // global.getUserConfig().intervalTimes // 长时间休息间隔数
+  
 }
 const mutations = {
   SET_WORKING_TIME (state, data) {

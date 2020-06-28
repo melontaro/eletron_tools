@@ -2,7 +2,8 @@ const global = require("../../utils/global")
 
 const state = {
   leftWorkingTime: 0,
-  tasks: []
+  tasks: [],
+  timeLines: []
 }
 const mutations = {
   SET_WORKING_TIME(state, data) {
@@ -18,7 +19,10 @@ const mutations = {
     })
   },
   REMOVETASK(state, data) {
-    state.tasks.splice(data,1)
+    state.tasks.splice(data, 1)
+  },
+  ADDTIMELINE(state,data){
+    state.timeLines.push(data)
   }
 }
 const actions = {
@@ -42,8 +46,6 @@ const actions = {
 
         const ipc = require('electron').ipcRenderer
         ipc.send('open-info-dialog')
-       
-
       }
 
     }, 1000);
@@ -93,7 +95,13 @@ const actions = {
     state
   }, data) {
     commit('REMOVETASK', data)
-  }
+  },
+  addTimeLine({
+    commit,
+    state
+  }, data) {
+    commit('ADDTIMELINE', data)
+  },
 
 
 }
