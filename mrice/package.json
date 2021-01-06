@@ -55,7 +55,7 @@
     }
   },
   "dependencies": {
-    "axios": "^0.18.0",
+    "axios": "^0.21.1",
     "element-ui": "2.13.2",
     "hydrogen-js-sdk": "^2.2.4",
     "moment": "^2.27.0",
